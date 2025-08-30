@@ -392,8 +392,8 @@ with gr.Blocks() as demo:
                 type="numpy"  # Ensure numpy array format for better performance
             )
 
-            webcam_timer = gr.Timer(0.033)  # ~30 FPS
-            webcam_timer.tick(fn=get_webcam_frame, outputs=webcam_output, show_progress=False)
+            webcam_timer = gr.Timer(interval=0.033, fn=get_webcam_frame, outputs=webcam_output, show_progress=False)
+
 
 
         # Right column - Chat
