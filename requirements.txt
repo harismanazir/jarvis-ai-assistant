@@ -11,3 +11,6 @@ SpeechRecognition
 google-generativeai
 ffmpeg-python
 numpy
+requests
+sounddevice
+
