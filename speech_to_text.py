@@ -5,7 +5,8 @@ from io import BytesIO
 from pydub.utils import which
 
 # AudioSegment.converter = which("ffmpeg")
-AudioSegment.converter = r"C:\Users\haris\Downloads\ffmpeg-8.0-full_build\ffmpeg-8.0-full_build\bin\ffmpeg.exe"
+AudioSegment.converter = which("ffmpeg")
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def record_audio(file_path, timeout=20, phrase_time_limit=None):
