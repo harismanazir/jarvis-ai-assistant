@@ -177,6 +177,17 @@ from speech_to_text import record_audio, transcribe_with_groq
 from ai_agent import ask_agent
 from text_to_speech import text_to_speech_with_gtts
 import app_globals
+import gradio_client.utils as gr_utils
+
+# Patch for bool schema bug in Gradio
+def safe_json_schema_to_python_type(schema, defs=None):
+    try:
+        return gr_utils._json_schema_to_python_type(schema, defs)
+    except TypeError:
+        return str  # Fallback to string for unexpected bool schemas
+
+gr_utils._json_schema_to_python_type = safe_json_schema_to_python_type
+
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 audio_filepath = "audio_question.mp3"
