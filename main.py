@@ -431,7 +431,7 @@ with gr.Blocks() as demo:
     # Event handlers
     start_btn.click(fn=start_webcam, outputs=webcam_output)
     stop_btn.click(fn=stop_webcam, outputs=webcam_output)
-    webcam_timer.tick(fn=get_webcam_frame, outputs=webcam_output, show_progress=False)
+    
     ask_btn.click(
     fn=record_and_ask,
     inputs=chatbot,
