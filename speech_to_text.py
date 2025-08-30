@@ -4,7 +4,6 @@ from pydub import AudioSegment
 from io import BytesIO
 from pydub.utils import which
 
-# AudioSegment.converter = which("ffmpeg")
 AudioSegment.converter = which("ffmpeg")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -41,8 +40,8 @@ def record_audio(file_path, timeout=20, phrase_time_limit=None):
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-filepath="haris.mp3"
-record_audio(filepath)
+# filepath="haris.mp3"
+# record_audio(filepath)
 
 
 from dotenv import load_dotenv
