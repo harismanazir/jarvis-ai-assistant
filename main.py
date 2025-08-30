@@ -179,6 +179,21 @@ from text_to_speech import text_to_speech_with_gtts
 import app_globals
 import gradio_client.utils as gr_utils
 
+# Keep a reference to original function
+_original_json_schema_to_python_type = gr_utils._json_schema_to_python_type
+
+def safe_json_schema_to_python_type(schema, defs=None):
+    # If schema is not a dict, safely return str
+    if not isinstance(schema, dict):
+        return str
+    try:
+        return _original_json_schema_to_python_type(schema, defs)
+    except TypeError:
+        return str
+
+# Apply the patch
+gr_utils._json_schema_to_python_type = safe_json_schema_to_python_type
+
 
 
 
