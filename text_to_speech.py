@@ -67,7 +67,7 @@ def text_to_speech_with_gtts(input_text, output_filepath):
         print(f"An error occurred while trying to play the audio: {e}")
 
 
-input_text = "Hi, I am Haris, I just wanna say that I love you Rehma"
+input_text = "Hi, I am Haris"
 output_filepath = "test_text_to_speech.mp3"
 #text_to_speech_with_elevenlabs(input_text, output_filepath)
 text_to_speech_with_gtts(input_text, output_filepath)
