@@ -204,15 +204,60 @@ def process_audio_and_chat():
             user_input = transcribe_with_groq(audio_filepath)
 
             response = ask_agent(user_query=user_input)
-            text_to_speech_with_gtts(input_text=response, output_filepath="final.mp3")
+            voice_of_doctor = text_to_speech_with_gtts(
+                input_text=response,
+                output_filepath="final.mp3",
+                play_locally=False  # Must be False for Render
+            )
 
             chat_history.append([user_input, response])
 
-            yield chat_history
+            yield chat_history, voice_of_doctor
 
         except Exception as e:
             print(f"Error in continuous recording: {e}")
             break
+
+
+def record_and_ask(chat_history):
+    try:
+        ask_btn.value = "🎙 Recording..."
+        ask_btn.interactive = False
+
+        # Step 1: Record audio
+        record_audio(file_path=audio_filepath)
+
+        # Step 2: Transcribe audio
+        user_input = transcribe_with_groq(audio_filepath)
+
+        if not user_input.strip():
+            ask_btn.value = "🎤 Ask Question"
+            ask_btn.interactive = True
+            return chat_history, None
+
+        # Step 3: Get AI response
+        response = ask_agent(user_query=user_input)
+
+        # Step 4: Convert AI response to speech
+        voice_of_doctor = text_to_speech_with_gtts(
+            input_text=response,
+            output_filepath="final.mp3",
+            play_locally=False
+        )
+
+        # Step 5: Update chat
+        chat_history.append([user_input, response])
+
+        ask_btn.value = "🎤 Ask Question"
+        ask_btn.interactive = True
+
+        return chat_history, voice_of_doctor
+
+    except Exception as e:
+        print(f"Error in record_and_ask: {e}")
+        ask_btn.value = "🎤 Ask Question"
+        ask_btn.interactive = True
+        return chat_history, None
 
 # ----------------- Pause & Resume Listening -----------------
 def pause_listening():
@@ -224,6 +269,12 @@ def resume_listening():
     global is_listening
     is_listening = True
     return chat_history
+def clear_chat():
+    global chat_history
+    chat_history = []   # Reset stored history
+    return []
+
+
 
 # ----------------- Webcam Logic -----------------
 def initialize_camera():
@@ -253,6 +304,10 @@ def start_webcam():
         return frame
     return last_frame
 
+
+
+
+ 
 # def stop_webcam():
 #     """Stop the webcam feed"""
 #     global is_running, camera
@@ -265,9 +320,11 @@ def start_webcam():
 def stop_webcam():
     global camera, is_running
     is_running = False
+    last_frame = None
     if camera is not None and camera.isOpened():
         camera.release()
         camera = None
+    return None
 
 
 # def get_webcam_frame():
@@ -296,13 +353,13 @@ def get_webcam_frame():
     global camera, is_running, last_frame
 
     if not is_running or camera is None or not camera.isOpened():
-        return last_frame
+        return None
 
     ret, frame = camera.read()
 
     # If camera fails, return last good frame
     if not ret or frame is None:
-        return last_frame
+        return None
 
     # Convert BGR → RGB for display
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -348,24 +405,39 @@ with gr.Blocks() as demo:
                 height=400,
                 show_label=False
             )
-
+            audio_output = gr.Audio(
+                label="🔊 AI Voice",
+                autoplay=True,
+                type="filepath",  # Important: Gradio will play the file automatically
+                interactive=False
+            )
             gr.Markdown("*🎤 Continuous listening mode is active - speak anytime!*")
 
             with gr.Row():
-                pause_btn = gr.Button("⏸️ Pause Listening", variant="secondary")
-                resume_btn = gr.Button("▶️ Resume Listening", variant="primary")
-                clear_btn = gr.Button("Clear Chat", variant="secondary")
+                ask_btn = gr.Button("🎤 Ask Question", variant="primary")
 
+                # pause_btn = gr.Button("⏸️ Pause Listening", variant="secondary")
+                # resume_btn = gr.Button("▶️ Resume Listening", variant="primary")
+                clear_btn = gr.Button("Clear Chat", variant="secondary")
+    
+    
     # Event handlers
     start_btn.click(fn=start_webcam, outputs=webcam_output)
     stop_btn.click(fn=stop_webcam, outputs=webcam_output)
     webcam_timer.tick(fn=get_webcam_frame, outputs=webcam_output, show_progress=False)
+    ask_btn.click(
+    fn=record_and_ask,
+    inputs=chatbot,
+    outputs=[chatbot, audio_output]
+)
 
-    pause_btn.click(fn=pause_listening, outputs=chatbot)
-    resume_btn.click(fn=resume_listening, outputs=chatbot)
-    clear_btn.click(fn=lambda: [], outputs=chatbot)
+    # pause_btn.click(fn=pause_listening, outputs=chatbot)
+    # resume_btn.click(fn=resume_listening, outputs=chatbot)
+   
+    clear_btn.click(fn=clear_chat,outputs=chatbot)
 
-    demo.load(fn=process_audio_and_chat, outputs=chatbot)
+
+    # demo.load(fn=process_audio_and_chat, outputs=[chatbot, audio_output])
 
 # ----------------- Launch the App -----------------
 if __name__ == "__main__":
