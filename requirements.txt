@@ -1,0 +1,13 @@
+gradio==4.36.1
+opencv-python-headless
+langchain
+langchain-google-genai
+langgraph
+groq
+python-dotenv
+pydub
+gtts
+SpeechRecognition
+google-generativeai
+ffmpeg-python
+numpy
