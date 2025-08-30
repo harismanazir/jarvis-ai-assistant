@@ -392,7 +392,11 @@ with gr.Blocks() as demo:
                 type="numpy"  # Ensure numpy array format for better performance
             )
 
-            webcam_timer = gr.Timer(interval=0.033, fn=get_webcam_frame, outputs=webcam_output, show_progress=False)
+            # ✅ Correct way for latest Gradio
+            webcam_timer = gr.Timer(value=0.033)
+            webcam_timer.tick(fn=get_webcam_frame, outputs=webcam_output, show_progress=False)
+
+            
 
 
 
