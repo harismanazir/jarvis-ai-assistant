@@ -229,21 +229,15 @@ def process_audio_and_chat():
             print(f"Error in continuous recording: {e}")
             break
 
-
 def record_and_ask(chat_history):
     try:
-        ask_btn.value = "🎙 Recording..."
-        ask_btn.interactive = False
-
         # Step 1: Record audio
         record_audio(file_path=audio_filepath)
 
         # Step 2: Transcribe audio
         user_input = transcribe_with_groq(audio_filepath)
 
-        if not user_input.strip():
-            ask_btn.value = "🎤 Ask Question"
-            ask_btn.interactive = True
+        if not user_input or not user_input.strip():
             return chat_history, None
 
         # Step 3: Get AI response
@@ -259,16 +253,14 @@ def record_and_ask(chat_history):
         # Step 5: Update chat
         chat_history.append([user_input, response])
 
-        ask_btn.value = "🎤 Ask Question"
-        ask_btn.interactive = True
-
         return chat_history, voice_of_doctor
 
     except Exception as e:
         print(f"Error in record_and_ask: {e}")
-        ask_btn.value = "🎤 Ask Question"
-        ask_btn.interactive = True
         return chat_history, None
+
+
+
 
 # ----------------- Pause & Resume Listening -----------------
 def pause_listening():
@@ -329,7 +321,7 @@ def start_webcam():
 #     return None
 
 def stop_webcam():
-    global camera, is_running
+    global camera, is_running, last_frame
     is_running = False
     last_frame = None
     if camera is not None and camera.isOpened():
