@@ -452,7 +452,7 @@ with gr.Blocks() as demo:
                 type="filepath",
                 format="wav",
                 sources=["microphone"],
-                streaming=False
+                streaming=True
             )
 
             audio_output = gr.Audio(
