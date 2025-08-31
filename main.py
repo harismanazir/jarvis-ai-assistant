@@ -237,35 +237,62 @@ def process_audio_and_chat():
             print(f"Error in continuous recording: {e}")
             break
 
-def record_and_ask(chat_history):
+# def record_and_ask(chat_history):
+#     try:
+#         # Step 1: Record audio
+#         record_audio(file_path=audio_filepath)
+
+#         # Step 2: Transcribe audio
+#         user_input = transcribe_with_groq(audio_filepath)
+
+#         if not user_input or not user_input.strip():
+#             return chat_history, None
+
+#         # Step 3: Get AI response
+#         response = ask_agent(user_query=user_input)
+
+#         # Step 4: Convert AI response to speech
+#         voice_of_doctor = text_to_speech_with_gtts(
+#             input_text=response,
+#             output_filepath="final.mp3",
+#             play_locally=False
+#         )
+
+#         # Step 5: Update chat
+#         chat_history.append([user_input, response])
+
+#         return chat_history, voice_of_doctor
+
+#     except Exception as e:
+#         print(f"Error in record_and_ask: {e}")
+#         return chat_history, None
+
+def record_and_ask(audio_file, chat_history):
     try:
-        # Step 1: Record audio
-        record_audio(file_path=audio_filepath)
-
-        # Step 2: Transcribe audio
-        user_input = transcribe_with_groq(audio_filepath)
-
-        if not user_input or not user_input.strip():
+        if audio_file is None:
             return chat_history, None
 
-        # Step 3: Get AI response
+        # Step 1: Transcribe audio using Groq
+        user_input = transcribe_with_groq(audio_file)
+
+        # Step 2: Get AI response
         response = ask_agent(user_query=user_input)
 
-        # Step 4: Convert AI response to speech
+        # Step 3: Convert AI response to speech
         voice_of_doctor = text_to_speech_with_gtts(
             input_text=response,
             output_filepath="final.mp3",
             play_locally=False
         )
 
-        # Step 5: Update chat
+        # Step 4: Update chat
         chat_history.append([user_input, response])
 
         return chat_history, voice_of_doctor
-
     except Exception as e:
         print(f"Error in record_and_ask: {e}")
         return chat_history, None
+
 
 
 
@@ -420,6 +447,14 @@ with gr.Blocks() as demo:
                 height=400,
                 show_label=False
             )
+            audio_input = gr.Audio(
+                label="🎤 Record Your Question",
+                type="filepath",
+                format="wav",
+                sources=["microphone"],
+                streaming=False
+            )
+
             audio_output = gr.Audio(
                 label="🔊 AI Voice",
                 autoplay=True,
@@ -442,9 +477,10 @@ with gr.Blocks() as demo:
     
     ask_btn.click(
     fn=record_and_ask,
-    inputs=chatbot,
+    inputs=[audio_input, chatbot],
     outputs=[chatbot, audio_output]
 )
+
 
     # pause_btn.click(fn=pause_listening, outputs=chatbot)
     # resume_btn.click(fn=resume_listening, outputs=chatbot)
