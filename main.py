@@ -173,7 +173,7 @@
 import os
 import gradio as gr
 import cv2
-from speech_to_text import record_audio, transcribe_with_groq
+from speech_to_text import transcribe_with_groq
 from ai_agent import ask_agent
 from text_to_speech import text_to_speech_with_gtts
 import app_globals
