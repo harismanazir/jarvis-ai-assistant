@@ -49,7 +49,7 @@ def text_to_speech_with_gtts(input_text, output_filepath):
     )
     audioobj.save(output_filepath)
 
-    wav_filepath = "final.wav"
+    wav_filepath = "/tmp/final.wav"
     audio = AudioSegment.from_mp3(output_filepath)
     audio.export(wav_filepath, format="wav")
 
