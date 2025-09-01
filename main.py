@@ -68,30 +68,73 @@ last_frame = None
 
 
 
+# def record_and_ask(audio_file, chat_history):
+#     try:
+#         if audio_file is None:
+#             return chat_history, None
+
+#         # Step 1: Transcribe audio using Groq
+#         user_input = transcribe_with_groq(audio_file)
+
+#         # Step 2: Get AI response
+#         response = ask_agent(user_query=user_input)
+
+#         # Step 3: Convert AI response to speech
+#         voice_of_doctor = text_to_speech_with_gtts(
+#             input_text=response,
+#             output_filepath="/tmp/final.mp3",
+#             play_locally=False
+#         )
+
+#         # Step 4: Update chat
+#         chat_history.append([user_input, response])
+
+#         return chat_history, voice_of_doctor
+#     except Exception as e:
+#         print(f"Error in record_and_ask: {e}")
+#         return chat_history, None
+
 def record_and_ask(audio_file, chat_history):
     try:
-        if audio_file is None:
+        # 1. Validate audio file
+        if not audio_file or not os.path.exists(audio_file) or os.path.getsize(audio_file) < 2000:
+            print("⚠️ No valid audio file received")
+            chat_history.append(["(User)", "⚠️ No valid audio recorded. Please try again."])
             return chat_history, None
 
-        # Step 1: Transcribe audio using Groq
+        # 2. Transcribe audio
         user_input = transcribe_with_groq(audio_file)
+        if not user_input.strip():
+            chat_history.append(["(User)", "⚠️ Sorry, I couldn't hear you. Please try again."])
+            return chat_history, None
 
-        # Step 2: Get AI response
+        print(f"🎤 User said: {user_input}")
+
+        # 3. Get AI response
         response = ask_agent(user_query=user_input)
+        if not response or not response.strip():
+            chat_history.append([user_input, "⚠️ AI didn't respond. Please retry later."])
+            return chat_history, None
 
-        # Step 3: Convert AI response to speech
-        voice_of_doctor = text_to_speech_with_gtts(
+        print(f"🤖 AI response: {response}")
+
+        # 4. Convert AI response to voice
+        output_path = "/tmp/final.mp3"
+        text_to_speech_with_gtts(
             input_text=response,
-            output_filepath="/tmp/final.mp3",
+            output_filepath=output_path,
             play_locally=False
         )
 
-        # Step 4: Update chat
+        # 5. Update chat history
         chat_history.append([user_input, response])
 
-        return chat_history, voice_of_doctor
+        # 6. Return chat + voice
+        return chat_history, output_path
+
     except Exception as e:
-        print(f"Error in record_and_ask: {e}")
+        print(f"❌ Error in record_and_ask: {e}")
+        chat_history.append(["(Error)", "⚠️ Something went wrong. Check logs."])
         return chat_history, None
 
 
