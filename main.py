@@ -27,7 +27,7 @@ gr_utils._json_schema_to_python_type = safe_json_schema_to_python_type
 
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-audio_filepath = "audio_question.mp3"
+audio_filepath = "/tmp/audio_question.mp3"
 
 # Global state variables
 chat_history = []
@@ -82,7 +82,7 @@ def record_and_ask(audio_file, chat_history):
         # Step 3: Convert AI response to speech
         voice_of_doctor = text_to_speech_with_gtts(
             input_text=response,
-            output_filepath="final.mp3",
+            output_filepath="/tmp/final.mp3",
             play_locally=False
         )
 
